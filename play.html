@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实战演练 | 掼蛋宗师 AI 对弈</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #065f46; color: white; overflow: hidden; }
+        .table-area { height: 100vh; position: relative; }
+        .poker-card {
+            width: 70px; height: 100px;
+            border-radius: 8px;
+            background: white;
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            user-select: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .poker-card.selected { border-color: #fbbf24; transform: translateY(-20px); box-shadow: 0 10px 15px rgba(251,191,36,0.4); }
+        .suit-red { color: #e11d48; }
+        .player-hand { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: -20px; }
+        .player-hand .poker-card { margin-left: -35px; }
+        .player-hand .poker-card:first-child { margin-left: 0; }
+        .ai-player { position: absolute; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 50%; width: 80px; height: 80px; display: flex; items-center justify-center; border: 2px solid rgba(255,255,255,0.2); }
+        .ai-top { top: 40px; left: 50%; transform: translateX(-50%); }
+        .ai-left { left: 40px; top: 50%; transform: translateY(-50%); }
+        .ai-right { right: 40px; top: 50%; transform: translateY(-50%); }
+        .battle-log { position: absolute; top: 20px; left: 20px; width: 250px; height: 150px; background: rgba(0,0,0,0.5); border-radius: 12px; padding: 15px; font-size: 0.8rem; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); }
+        .center-board { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .btn-action { padding: 10px 30px; border-radius: 99px; font-weight: bold; transition: all 0.2s; }
+    </style>
+</head>
+<body>
+
+    <div class="table-area">
+        <!-- Back Nav -->
+        <a href="index.html" class="absolute top-6 right-6 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">退出练习</a>
+
+        <!-- Log -->
+        <div id="log" class="battle-log">
+            <p class="text-emerald-400 font-bold mb-2">系统提示：</p>
+            <p>正在进入练习赛...</p>
+            <p>本局当前级别：<span class="text-yellow-400">2</span></p>
+        </div>
+
+        <!-- AI Players -->
+        <div class="ai-player ai-top"><span>对家</span></div>
+        <div class="ai-player ai-left"><span>对手A</span></div>
+        <div class="ai-player ai-right"><span>对手B</span></div>
+
+        <!-- Center Board (Played Cards) -->
+        <div class="center-board">
+            <div id="played-cards" class="flex gap-2 justify-center mb-10">
+                <!-- Cards appear here -->
+            </div>
+            <div id="controls" class="flex gap-4">
+                <button onclick="playCards()" class="btn-action bg-yellow-500 hover:bg-yellow-400 text-emerald-900">出牌</button>
+                <button onclick="passTurn()" class="btn-action bg-white/20 hover:bg-white/30">过牌</button>
+            </div>
+        </div>
+
+        <!-- User Hand -->
+        <div id="hand" class="player-hand">
+            <!-- Dynamic Cards -->
+        </div>
+    </div>
+
+    <script>
+        const cardsData = ['A','K','Q','J','10','9','8','7','6','5','4','3','2'];
+        const suits = ['♥','♠','♣','♦'];
+        let hand = [];
+        let selectedIndices = new Set();
+
+        function initGame() {
+            // Give user some fixed cards for practice
+            const userHandValues = ['2', '2', 'J', 'J', 'J', '8', '8', '7', '5', '4'];
+            hand = userHandValues.map((v, i) => ({ value: v, suit: suits[i % 4], id: i }));
+            renderHand();
+            addLog("系统：你的手牌已分发。红桃2是逢人配！");
+        }
+
+        function renderHand() {
+            const container = document.getElementById('hand');
+            container.innerHTML = '';
+            hand.forEach((card, index) => {
+                const el = document.createElement('div');
+                el.className = `poker-card ${selectedIndices.has(index) ? 'selected' : ''} ${card.suit === '♥' || card.suit === '♦' ? 'suit-red' : ''}`;
+                el.innerHTML = `<span class="text-xs absolute top-1 left-2">${card.suit}</span>${card.value}`;
+                el.onclick = () => toggleSelect(index);
+                container.appendChild(el);
+            });
+        }
+
+        function toggleSelect(index) {
+            if (selectedIndices.has(index)) selectedIndices.delete(index);
+            else selectedIndices.add(index);
+            renderHand();
+        }
+
+        function playCards() {
+            if (selectedIndices.size === 0) {
+                addLog("警告：请先选择要出的牌！");
+                return;
+            }
+            
+            const selected = Array.from(selectedIndices).map(i => hand[i]);
+            const board = document.getElementById('played-cards');
+            board.innerHTML = '';
+            
+            selected.forEach(card => {
+                const el = document.createElement('div');
+                el.className = `poker-card ${card.suit === '♥' || card.suit === '♦' ? 'suit-red' : ''}`;
+                el.innerHTML = `${card.suit}${card.value}`;
+                board.appendChild(el);
+            });
+
+            addLog(`你出了：${selected.map(c => c.value).join(', ')}`);
+            
+            // Remove from hand
+            hand = hand.filter((_, i) => !selectedIndices.has(i));
+            selectedIndices.clear();
+            renderHand();
+
+            // Simulate AI
+            setTimeout(aiResponse, 1000);
+        }
+
+        function aiResponse() {
+            addLog("对手A：过。");
+            setTimeout(() => {
+                addLog("对家：我也过，配合你！");
+                setTimeout(() => {
+                    addLog("对手B：炸弹！10 10 10 10");
+                    const board = document.getElementById('played-cards');
+                    board.innerHTML = '<div class="poker-card">10</div><div class="poker-card">10</div><div class="poker-card">10</div><div class="poker-card">10</div>';
+                    addLog("<span class='text-red-400'>警告：对手B对你施加了压力。</span>");
+                }, 1000);
+            }, 1000);
+        }
+
+        function passTurn() {
+            addLog("你选择了过牌。");
+            setTimeout(aiResponse, 1000);
+        }
+
+        function addLog(msg) {
+            const log = document.getElementById('log');
+            const p = document.createElement('p');
+            p.className = "mb-1 text-slate-200 border-b border-white/5 pb-1";
+            p.innerHTML = msg;
+            log.appendChild(p);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
