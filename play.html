@@ -7,24 +7,49 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Noto Sans SC', sans-serif; background-color: #065f46; color: white; overflow: hidden; }
-        .table-area { height: 100vh; position: relative; }
+        :root {
+            --card-w: 80px;
+            --card-h: 112px;
+            --card-corner-padding: 4px 6px;
+            --card-suit-size: 1.4rem;
+            --rank-size: 1.1rem;
+        }
+
+        @media (max-width: 640px) {
+            :root {
+                --card-w: 58px;
+                --card-h: 82px;
+                --card-corner-padding: 2px 4px;
+                --card-suit-size: 1rem;
+                --rank-size: 0.85rem;
+            }
+        }
+
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #065f46; color: white; overflow: hidden; margin: 0; }
+        .table-area { height: 100vh; position: relative; width: 100vw; overflow: hidden; }
+        
         .poker-card {
-            width: 80px; height: 112px;
-            border-radius: 10px;
+            width: var(--card-w);
+            height: var(--card-h);
+            border-radius: 8px;
             background: white;
             color: black;
             display: flex;
             font-weight: bold;
-            font-size: 1.2rem;
-            border: 2px solid #e5e5e5;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.8);
+            border: 1px solid #e5e5e5;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.8);
             user-select: none;
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            flex-shrink: 0;
         }
+        
+        @media (min-width: 641px) {
+            .poker-card { border-radius: 10px; border-width: 2px; box-shadow: 0 4px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.8); }
+        }
+
         .poker-card::before {
             content: '';
             position: absolute;
@@ -34,58 +59,59 @@
         }
         .poker-card.selected {
             border-color: #fbbf24;
-            box-shadow: 0 12px 25px rgba(251,191,36,0.5), 0 0 0 3px rgba(251,191,36,0.3);
+            box-shadow: 0 8px 16px rgba(251,191,36,0.4), 0 0 0 2px rgba(251,191,36,0.3);
         }
         .poker-card.wild {
             border-color: #8b5cf6;
-            box-shadow: 0 0 15px rgba(139,92,246,0.6), inset 0 0 20px rgba(139,92,246,0.1);
+            box-shadow: 0 0 10px rgba(139,92,246,0.5);
         }
         .suit-red { color: #dc2626; }
         .suit-black { color: #1f2937; }
 
-        /* Card corner - vertical stack with large text */
+        /* Card corner */
         .card-corner {
             position: absolute;
-            top: 6px;
-            left: 6px;
+            top: 3px;
+            left: 3px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             line-height: 1;
             z-index: 2;
-            background: rgba(255,255,255,0.98);
-            border-radius: 6px;
-            padding: 4px 6px;
-            min-width: 28px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            background: rgba(255,255,255,0.95);
+            border-radius: 4px;
+            padding: var(--card-corner-padding);
+            min-width: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         .card-suit {
-            font-size: 1.4rem;
+            font-size: var(--card-suit-size);
             line-height: 1;
-            margin-bottom: 2px;
         }
         .card-rank {
-            font-size: 1.1rem;
+            font-size: var(--rank-size);
             font-weight: 900;
             line-height: 1;
         }
 
-        /* Player hand container - professional poker style */
+        /* Player hand container */
         .player-hand {
             position: absolute;
-            bottom: 20px;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             z-index: 10;
-            height: 140px;
-            padding: 10px 40px;
+            height: auto;
+            min-height: calc(var(--card-h) + 20px);
+            padding: 10px 20px;
+            width: 100%;
+            justify-content: center;
         }
 
         .player-hand .poker-card {
             position: relative;
-            flex-shrink: 0;
-            margin-left: var(--card-offset, -45px);
+            margin-left: var(--card-offset, -30px);
         }
         .player-hand .poker-card:first-child {
             margin-left: 0;
@@ -93,100 +119,112 @@
 
         /* Selected cards pop up */
         .player-hand .poker-card.selected {
-            transform: translateY(-35px);
+            transform: translateY(-20px);
             z-index: 50;
         }
 
-        /* Hover effect - card pops up */
-        .player-hand .poker-card:hover {
-            transform: translateY(-45px) scale(1.08);
-            z-index: 100 !important;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        /* Hover effect - disable or minimize on mobile */
+        @media (min-width: 1024px) {
+            .player-hand .poker-card:hover {
+                transform: translateY(-45px) scale(1.08);
+                z-index: 100 !important;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            }
+            .player-hand .poker-card.selected:hover {
+                transform: translateY(-50px) scale(1.08);
+            }
         }
 
-        /* Selected + hover combo */
-        .player-hand .poker-card.selected:hover {
-            transform: translateY(-50px) scale(1.08);
-        }
-
-        /* Two-row layout for many cards */
+        /* Two-row layout */
         .player-hand.two-rows {
             flex-wrap: wrap;
             align-content: flex-end;
             justify-content: center;
-            height: 240px;
+            height: auto;
+            max-height: calc(var(--card-h) * 1.8);
             padding-bottom: 5px;
         }
 
         .player-hand.two-rows .poker-card {
-            margin-bottom: -60px;
-        }
-
-        .player-hand.two-rows .poker-card:nth-child(n+11) {
-            margin-left: var(--card-offset, -45px);
+            margin-bottom: calc(var(--card-h) * -0.6);
         }
 
         .player-hand.two-rows .poker-card.selected {
-            transform: translateY(-25px);
-        }
-
-        .player-hand.two-rows .poker-card:hover {
-            transform: translateY(-35px) scale(1.08);
-        }
-
-        .player-hand.two-rows .poker-card.selected:hover {
-            transform: translateY(-40px) scale(1.08);
+            transform: translateY(-15px);
         }
 
         .ai-player {
             position: absolute;
-            padding: 15px;
+            padding: 8px 12px;
             background: rgba(0,0,0,0.4);
-            border-radius: 16px;
-            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
             text-align: center;
-            min-width: 100px;
+            min-width: 80px;
+            z-index: 5;
         }
-        .ai-top { top: 20px; left: 50%; transform: translateX(-50%); }
-        .ai-left { left: 20px; top: 50%; transform: translateY(-50%); }
-        .ai-right { right: 20px; top: 50%; transform: translateY(-50%); }
+        
+        @media (max-width: 640px) {
+            .ai-top { top: 10px; left: 50%; transform: translateX(-50%); }
+            .ai-left { left: 10px; top: 30%; transform: translateY(-50%); scale: 0.9; }
+            .ai-right { right: 10px; top: 30%; transform: translateY(-50%); scale: 0.9; }
+        }
+        
+        @media (min-width: 641px) {
+            .ai-player { padding: 15px; border-radius: 16px; border-width: 2px; min-width: 100px; }
+            .ai-top { top: 20px; left: 50%; transform: translateX(-50%); }
+            .ai-left { left: 20px; top: 40%; transform: translateY(-50%); }
+            .ai-right { right: 20px; top: 40%; transform: translateY(-50%); }
+        }
 
         .ai-hand-count {
             background: #fbbf24;
             color: #065f46;
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            margin: 0 auto 8px;
+            margin: 0 auto 4px;
+            font-size: 0.9rem;
         }
 
         .ai-play-area {
             position: absolute;
             display: flex;
-            gap: 4px;
+            gap: 2px;
             justify-content: center;
+            z-index: 2;
         }
-        .ai-top-play { top: 120px; left: 50%; transform: translateX(-50%); }
-        .ai-left-play { left: 140px; top: 50%; transform: translateY(-50%); }
-        .ai-right-play { right: 140px; top: 50%; transform: translateY(-50%); }
+        @media (max-width: 640px) {
+            .ai-top-play { top: 80px; left: 50%; transform: translateX(-50%); scale: 0.8; }
+            .ai-left-play { left: 10px; top: 45%; transform: translateY(-50%); scale: 0.7; transform-origin: left; }
+            .ai-right-play { right: 10px; top: 45%; transform: translateY(-50%); scale: 0.7; transform-origin: right; }
+        }
+        @media (min-width: 641px) {
+            .ai-top-play { top: 120px; left: 50%; transform: translateX(-50%); }
+            .ai-left-play { left: 140px; top: 50%; transform: translateY(-50%); }
+            .ai-right-play { right: 140px; top: 50%; transform: translateY(-50%); }
+        }
 
         .battle-log {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 280px;
-            height: 200px;
             background: rgba(0,0,0,0.6);
             border-radius: 12px;
-            padding: 15px;
-            font-size: 0.85rem;
+            padding: 10px;
+            font-size: 0.75rem;
             overflow-y: auto;
             border: 1px solid rgba(255,255,255,0.1);
             z-index: 20;
+        }
+        
+        @media (max-width: 640px) {
+            .battle-log { top: 10px; left: 10px; width: 120px; height: 100px; font-size: 0.7rem; opacity: 0.8; pointer-events: none; }
+        }
+        @media (min-width: 641px) {
+            .battle-log { top: 20px; left: 20px; width: 280px; height: 200px; font-size: 0.85rem; }
         }
 
         .center-board {
@@ -196,61 +234,122 @@
             transform: translate(-50%, -50%);
             text-align: center;
             background: rgba(0,0,0,0.3);
-            padding: 20px 40px;
+            padding: 10px 20px;
             border-radius: 16px;
-            min-width: 300px;
+            width: 90%;
+            max-width: 400px;
         }
 
         .last-play-info {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #94a3b8;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         #played-cards {
             display: flex;
-            gap: 6px;
+            gap: 2px;
             justify-content: center;
-            min-height: 100px;
+            min-height: 80px;
             align-items: center;
         }
 
         .btn-action {
-            padding: 12px 32px;
+            padding: 8px 20px;
             border-radius: 99px;
             font-weight: bold;
             transition: all 0.2s;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
-        .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        @media (min-width: 641px) {
+            .btn-action { padding: 12px 32px; font-size: 1rem; }
+            .center-board { padding: 20px 40px; min-width: 300px; }
+            .last-play-info { font-size: 0.9rem; }
+            #played-cards { min-height: 100px; gap: 6px; }
+        }
 
         .game-info {
             position: absolute;
-            top: 20px;
-            right: 20px;
             background: rgba(0,0,0,0.5);
-            padding: 12px 20px;
+            padding: 8px 12px;
             border-radius: 12px;
             text-align: right;
+            z-index: 20;
+        }
+        
+        @media (max-width: 640px) {
+            .game-info { top: 10px; right: 10px; scale: 0.8; transform-origin: right top; }
+        }
+        @media (min-width: 641px) {
+            .game-info { top: 20px; right: 20px; padding: 12px 20px; }
         }
 
         .level-indicator {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
             background: rgba(251,191,36,0.2);
-            padding: 6px 14px;
+            padding: 4px 10px;
             border-radius: 20px;
-            margin-top: 8px;
+            margin-top: 4px;
         }
 
         .turn-indicator {
             position: absolute;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             background: #22c55e;
             border-radius: 50%;
             animation: pulse 1s infinite;
+        }
+        
+        @media (max-width: 640px) and (orientation: portrait) {
+            .portrait-notice {
+                display: flex !important;
+            }
+        }
+
+        .portrait-notice {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #065f46;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .rotate-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 20px;
+            animation: rotate-device 2s infinite;
+            color: #fbbf24;
+        }
+
+        @keyframes rotate-device {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* Landscape specific optimizations for small height screens */
+        @media (max-height: 500px) {
+            .ai-top { top: 5px; scale: 0.8; }
+            .ai-top-play { top: 60px; transform: translateX(-50%) scale(0.7); }
+            .ai-left { left: 10px; top: 25%; scale: 0.8; }
+            .ai-right { right: 10px; top: 25%; scale: 0.8; }
+            .center-board { top: 42%; padding: 5px 10px; scale: 0.85; width: 80%; }
+            #played-cards { min-height: 70px; }
+            .player-hand { bottom: 0px; padding: 0; }
+            .game-info { top: 5px; right: 5px; scale: 0.65; }
+            .battle-log { top: 5px; left: 5px; height: 50px; width: 90px; font-size: 0.6rem; opacity: 0.5; }
+            .btn-back { bottom: 10px; left: 10px; scale: 0.8; top: auto; right: auto; }
+            .btn-action { padding: 6px 15px; font-size: 0.8rem; }
         }
         .turn-top { top: -6px; left: 50%; transform: translateX(-50%); }
         .turn-left { left: -6px; top: 50%; transform: translateY(-50%); }
@@ -272,19 +371,30 @@
             z-index: 100;
         }
         .winner-modal.active { display: flex; }
-        .winner-content {
-            background: linear-gradient(135deg, #065f46 0%, #047857 100%);
-            padding: 40px 60px;
-            border-radius: 20px;
-            text-align: center;
-            border: 3px solid #fbbf24;
+        /* Back Nav */
+        .btn-back {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 30;
         }
-    </style>
+        @media (max-width: 640px) {
+            .btn-back { top: auto; bottom: 20px; left: 20px; right: auto; font-size: 0.75rem; padding: 4px 10px; }
+        }
 </head>
 <body>
+    <div class="portrait-notice" id="portrait-notice">
+        <svg class="rotate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+        <h2 class="text-xl font-bold mb-2">请横屏进行游戏</h2>
+        <p class="text-emerald-200">为了获得最佳的掼蛋对弈体验，请旋转您的手机。</p>
+        <button onclick="document.getElementById('portrait-notice').style.display='none'" class="mt-6 px-4 py-2 border border-white/30 rounded-lg text-sm">继续竖屏使用</button>
+    </div>
+
     <div class="table-area">
         <!-- Back Nav -->
-        <a href="index.html" class="absolute top-6 right-6 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition z-30">退出练习</a>
+        <a href="index.html" class="btn-back px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">退出练习</a>
 
         <!-- Game Info -->
         <div class="game-info">
@@ -716,52 +826,51 @@
         }
 
         function calculateCardLayout(cardCount) {
-            const cardWidth = 80;
-            const visibleStripWidth = 25; // Width of visible index strip
-            const maxVisibleWidth = window.innerWidth * 0.92; // 92% of viewport
-            const minOffset = -55; // Maximum overlap (showing just the corner)
-            const comfortableOffset = -35; // Comfortable spacing
+            const isMobile = window.innerWidth <= 640;
+            const cardWidth = isMobile ? 58 : 80;
+            const maxVisibleWidth = window.innerWidth * 0.95;
+            
+            // Overlap settings
+            const minOffset = -Math.floor(cardWidth * 0.7); // Leave 30% visible
+            const comfortableOffset = -Math.floor(cardWidth * 0.45); // Standard overlap
 
-            // Two-row threshold
-            const useTwoRows = cardCount > 20;
+            // Two-row threshold - if cards don't fit in one row with min overlap
+            const minOneRowWidth = cardWidth + (cardCount - 1) * Math.abs(minOffset);
+            const useTwoRows = minOneRowWidth > maxVisibleWidth || cardCount > 24;
 
             if (cardCount <= 1) return { offset: 0, useTwoRows: false };
 
-            // For two rows, calculate per-row layout
             if (useTwoRows) {
                 const cardsPerRow = Math.ceil(cardCount / 2);
-                const rowWidth = cardWidth + (cardsPerRow - 1) * Math.abs(minOffset);
-
-                if (rowWidth > maxVisibleWidth) {
-                    // Need tighter packing for two rows
-                    const availableSpace = maxVisibleWidth - cardWidth;
-                    const offset = -Math.ceil(availableSpace / (cardsPerRow - 1));
-                    return { offset: Math.max(minOffset, offset), useTwoRows: true };
-                }
-                return { offset: comfortableOffset, useTwoRows: true };
+                const availableSpace = maxVisibleWidth - cardWidth;
+                let offset = -Math.ceil(availableSpace / (cardsPerRow - 1));
+                
+                // Don't overlap more than minOffset
+                offset = Math.max(minOffset, Math.min(comfortableOffset, offset));
+                return { offset, useTwoRows: true };
             }
 
             // Single row calculation
             const totalHandWidth = cardWidth + (cardCount - 1) * Math.abs(comfortableOffset);
-
             if (totalHandWidth <= maxVisibleWidth) {
-                // Cards fit comfortably
                 return { offset: comfortableOffset, useTwoRows: false };
             }
 
-            // Need to pack tighter
             const availableSpace = maxVisibleWidth - cardWidth;
-            const offset = -Math.ceil(availableSpace / (cardCount - 1));
-
-            // Ensure at least the corner strip is visible
-            const finalOffset = Math.max(minOffset, offset);
-
-            return { offset: finalOffset, useTwoRows: false };
+            const offset = Math.max(minOffset, -Math.ceil(availableSpace / (cardCount - 1)));
+            return { offset, useTwoRows: false };
         }
 
         function renderHand() {
             const container = document.getElementById('hand');
             const cardCount = players[0].length;
+
+            if (cardCount === 0) {
+                const turnIndicator = container.querySelector('.turn-indicator');
+                container.innerHTML = '';
+                if (turnIndicator) container.appendChild(turnIndicator);
+                return;
+            }
 
             // Calculate layout
             const layout = calculateCardLayout(cardCount);
@@ -789,8 +898,12 @@
 
                 el.className = `poker-card ${isSelected ? 'selected' : ''} ${isRed ? 'suit-red' : 'suit-black'} ${isWild ? 'wild' : ''}`;
 
-                // Set z-index based on position (later cards on top)
+                // Set z-index based on position
                 el.style.zIndex = index + 1;
+                
+                // Fix for wrapped rows: if it's the start of a new row in two-row mode,
+                // the negative margin-left might cause issues. 
+                // But with justify-content: center, it usually looks okay.
 
                 if (card.isJoker) {
                     el.innerHTML = `
@@ -926,15 +1039,25 @@
                 targetContainer = document.getElementById('play-right');
             }
 
+            const isMobile = window.innerWidth <= 640;
+            const cardW = isMobile ? 45 : 65;
+            const cardH = isMobile ? 63 : 90;
+            const offset = isMobile ? -18 : -25;
+
             cards.forEach((card, idx) => {
                 const el = document.createElement('div');
                 const isRed = card.suit === '♥' || card.suit === '♦';
                 el.className = `poker-card ${isRed ? 'suit-red' : 'suit-black'} ${card.isWild ? 'wild' : ''}`;
-                el.style.width = '65px';
-                el.style.height = '90px';
-                el.style.marginLeft = idx > 0 ? '-25px' : '0';
+                el.style.width = cardW + 'px';
+                el.style.height = cardH + 'px';
+                el.style.marginLeft = idx > 0 ? offset + 'px' : '0';
                 el.style.flexShrink = '0';
                 el.style.zIndex = idx + 1;
+                
+                // Scale corner for small cards
+                if (isMobile) {
+                    el.style.fontSize = '0.7rem';
+                }
 
                 if (card.isJoker) {
                     el.innerHTML = `
