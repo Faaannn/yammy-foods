@@ -10,76 +10,132 @@
         body { font-family: 'Noto Sans SC', sans-serif; background-color: #065f46; color: white; overflow: hidden; }
         .table-area { height: 100vh; position: relative; }
         .poker-card {
-            width: 60px; height: 90px;
-            border-radius: 8px;
+            width: 80px; height: 112px;
+            border-radius: 10px;
             background: white;
             color: black;
             display: flex;
             font-weight: bold;
             font-size: 1.2rem;
-            border: 2px solid #ddd;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 2px solid #e5e5e5;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.8);
             user-select: none;
-            transition: all 0.2s;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
             cursor: pointer;
             position: relative;
+            overflow: hidden;
         }
-        .poker-card.selected { border-color: #fbbf24; transform: translateY(-20px); box-shadow: 0 10px 15px rgba(251,191,36,0.4); }
-        .poker-card.wild { border-color: #8b5cf6; box-shadow: 0 0 10px rgba(139,92,246,0.5); }
-        .suit-red { color: #e11d48; }
+        .poker-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(0,0,0,0.05) 100%);
+            pointer-events: none;
+        }
+        .poker-card.selected {
+            border-color: #fbbf24;
+            box-shadow: 0 12px 25px rgba(251,191,36,0.5), 0 0 0 3px rgba(251,191,36,0.3);
+        }
+        .poker-card.wild {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 15px rgba(139,92,246,0.6), inset 0 0 20px rgba(139,92,246,0.1);
+        }
+        .suit-red { color: #dc2626; }
         .suit-black { color: #1f2937; }
+
+        /* Card corner - vertical stack with large text */
         .card-corner {
             position: absolute;
-            top: 4px;
-            left: 4px;
+            top: 6px;
+            left: 6px;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
             line-height: 1;
-            background: rgba(255,255,255,0.95);
-            border-radius: 4px;
-            padding: 2px 3px;
             z-index: 2;
+            background: rgba(255,255,255,0.98);
+            border-radius: 6px;
+            padding: 4px 6px;
+            min-width: 28px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
-        .card-suit { font-size: 0.9rem; }
-        .card-rank { font-size: 0.85rem; font-weight: bold; margin-top: 1px; }
+        .card-suit {
+            font-size: 1.4rem;
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+        .card-rank {
+            font-size: 1.1rem;
+            font-weight: 900;
+            line-height: 1;
+        }
 
+        /* Player hand container - professional poker style */
         .player-hand {
             position: absolute;
-            bottom: 30px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             z-index: 10;
-            padding: 0 20px;
-            max-width: 95vw;
+            height: 140px;
+            padding: 10px 40px;
         }
+
         .player-hand .poker-card {
+            position: relative;
+            flex-shrink: 0;
+            margin-left: var(--card-offset, -45px);
+        }
+        .player-hand .poker-card:first-child {
             margin-left: 0;
-            transform-origin: bottom center;
-            transition: transform 0.2s ease, margin-left 0.2s ease, box-shadow 0.2s ease;
-        }
-        .player-hand .poker-card:first-child { margin-left: 0; }
-
-        /* Dynamic spacing based on card count - applied via JS */
-        .player-hand .poker-card { margin-left: var(--card-spacing, -20px); }
-
-        /* Fan effect for many cards */
-        .player-hand.fan-layout .poker-card {
-            transform: rotate(var(--card-rotation, 0deg)) translateY(var(--card-y-offset, 0));
         }
 
-        /* Hover effect - lift card */
+        /* Selected cards pop up */
+        .player-hand .poker-card.selected {
+            transform: translateY(-35px);
+            z-index: 50;
+        }
+
+        /* Hover effect - card pops up */
         .player-hand .poker-card:hover {
-            transform: translateY(-30px) scale(1.05) rotate(0deg) !important;
-            z-index: 100;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            transform: translateY(-45px) scale(1.08);
+            z-index: 100 !important;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
-        /* Ensure rank/suit visibility when stacked */
-        .player-hand .poker-card .card-corner {
-            background: rgba(255,255,255,0.95);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        /* Selected + hover combo */
+        .player-hand .poker-card.selected:hover {
+            transform: translateY(-50px) scale(1.08);
+        }
+
+        /* Two-row layout for many cards */
+        .player-hand.two-rows {
+            flex-wrap: wrap;
+            align-content: flex-end;
+            justify-content: center;
+            height: 240px;
+            padding-bottom: 5px;
+        }
+
+        .player-hand.two-rows .poker-card {
+            margin-bottom: -60px;
+        }
+
+        .player-hand.two-rows .poker-card:nth-child(n+11) {
+            margin-left: var(--card-offset, -45px);
+        }
+
+        .player-hand.two-rows .poker-card.selected {
+            transform: translateY(-25px);
+        }
+
+        .player-hand.two-rows .poker-card:hover {
+            transform: translateY(-35px) scale(1.08);
+        }
+
+        .player-hand.two-rows .poker-card.selected:hover {
+            transform: translateY(-40px) scale(1.08);
         }
 
         .ai-player {
@@ -660,29 +716,47 @@
         }
 
         function calculateCardLayout(cardCount) {
-            const cardWidth = 60;
-            const maxVisibleWidth = window.innerWidth * 0.9; // 90% of viewport
-            const minSpacing = -45; // Maximum overlap (cards still visible)
-            const maxSpacing = 10;  // Minimum overlap (comfortable spacing)
+            const cardWidth = 80;
+            const visibleStripWidth = 25; // Width of visible index strip
+            const maxVisibleWidth = window.innerWidth * 0.92; // 92% of viewport
+            const minOffset = -55; // Maximum overlap (showing just the corner)
+            const comfortableOffset = -35; // Comfortable spacing
 
-            if (cardCount <= 1) return { spacing: 0, useFan: false };
+            // Two-row threshold
+            const useTwoRows = cardCount > 20;
 
-            // Calculate required spacing to fit all cards
-            const totalCardsWidth = cardCount * cardWidth;
-            const requiredOverlap = totalCardsWidth - maxVisibleWidth;
+            if (cardCount <= 1) return { offset: 0, useTwoRows: false };
 
-            if (requiredOverlap <= 0) {
-                // Cards fit without much overlap
-                return { spacing: maxSpacing, useFan: false };
+            // For two rows, calculate per-row layout
+            if (useTwoRows) {
+                const cardsPerRow = Math.ceil(cardCount / 2);
+                const rowWidth = cardWidth + (cardsPerRow - 1) * Math.abs(minOffset);
+
+                if (rowWidth > maxVisibleWidth) {
+                    // Need tighter packing for two rows
+                    const availableSpace = maxVisibleWidth - cardWidth;
+                    const offset = -Math.ceil(availableSpace / (cardsPerRow - 1));
+                    return { offset: Math.max(minOffset, offset), useTwoRows: true };
+                }
+                return { offset: comfortableOffset, useTwoRows: true };
             }
 
-            // Calculate spacing needed
-            const spacing = Math.max(minSpacing, -Math.ceil(requiredOverlap / (cardCount - 1)));
+            // Single row calculation
+            const totalHandWidth = cardWidth + (cardCount - 1) * Math.abs(comfortableOffset);
 
-            // Use fan effect when there are many cards (20+)
-            const useFan = cardCount >= 20;
+            if (totalHandWidth <= maxVisibleWidth) {
+                // Cards fit comfortably
+                return { offset: comfortableOffset, useTwoRows: false };
+            }
 
-            return { spacing, useFan };
+            // Need to pack tighter
+            const availableSpace = maxVisibleWidth - cardWidth;
+            const offset = -Math.ceil(availableSpace / (cardCount - 1));
+
+            // Ensure at least the corner strip is visible
+            const finalOffset = Math.max(minOffset, offset);
+
+            return { offset: finalOffset, useTwoRows: false };
         }
 
         function renderHand() {
@@ -692,28 +766,20 @@
             // Calculate layout
             const layout = calculateCardLayout(cardCount);
 
-            // Apply CSS variables for spacing
-            container.style.setProperty('--card-spacing', layout.spacing + 'px');
+            // Apply CSS variables for offset
+            container.style.setProperty('--card-offset', layout.offset + 'px');
 
-            // Toggle fan layout class
-            if (layout.useFan) {
-                container.classList.add('fan-layout');
+            // Toggle two-rows class
+            if (layout.useTwoRows) {
+                container.classList.add('two-rows');
             } else {
-                container.classList.remove('fan-layout');
+                container.classList.remove('two-rows');
             }
 
             // Keep turn indicator
             const turnIndicator = container.querySelector('.turn-indicator');
             container.innerHTML = '';
             if (turnIndicator) container.appendChild(turnIndicator);
-
-            // Calculate fan rotation angles
-            const totalAngle = 30; // Total spread angle in degrees
-            const startAngle = -totalAngle / 2;
-            const angleStep = cardCount > 1 ? totalAngle / (cardCount - 1) : 0;
-
-            // Calculate Y offset for fan effect (cards arc upward)
-            const maxYOffset = layout.useFan ? -15 : 0;
 
             players[0].forEach((card, index) => {
                 const el = document.createElement('div');
@@ -723,13 +789,8 @@
 
                 el.className = `poker-card ${isSelected ? 'selected' : ''} ${isRed ? 'suit-red' : 'suit-black'} ${isWild ? 'wild' : ''}`;
 
-                // Apply fan rotation and Y offset
-                if (layout.useFan) {
-                    const rotation = startAngle + (angleStep * index);
-                    const yOffset = Math.abs(rotation) / (totalAngle / 2) * maxYOffset;
-                    el.style.setProperty('--card-rotation', rotation + 'deg');
-                    el.style.setProperty('--card-y-offset', yOffset + 'px');
-                }
+                // Set z-index based on position (later cards on top)
+                el.style.zIndex = index + 1;
 
                 if (card.isJoker) {
                     el.innerHTML = `
@@ -755,6 +816,17 @@
                 container.appendChild(el);
             });
         }
+
+        // Recalculate layout on window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (players[0].length > 0) {
+                    renderHand();
+                }
+            }, 100);
+        });
 
         function toggleSelect(index) {
             if (currentPlayer !== 0 || !gameActive) return;
@@ -854,12 +926,15 @@
                 targetContainer = document.getElementById('play-right');
             }
 
-            cards.forEach(card => {
+            cards.forEach((card, idx) => {
                 const el = document.createElement('div');
                 const isRed = card.suit === '♥' || card.suit === '♦';
                 el.className = `poker-card ${isRed ? 'suit-red' : 'suit-black'} ${card.isWild ? 'wild' : ''}`;
-                el.style.width = '50px';
-                el.style.height = '75px';
+                el.style.width = '65px';
+                el.style.height = '90px';
+                el.style.marginLeft = idx > 0 ? '-25px' : '0';
+                el.style.flexShrink = '0';
+                el.style.zIndex = idx + 1;
 
                 if (card.isJoker) {
                     el.innerHTML = `
