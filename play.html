@@ -15,39 +15,25 @@
             --rank-size: 1.1rem;
         }
 
-        @media (max-width: 640px) {
-            :root {
-                --card-w: 58px;
-                --card-h: 82px;
-                --card-corner-padding: 2px 4px;
-                --card-suit-size: 1rem;
-                --rank-size: 0.85rem;
-            }
-        }
-
         body { font-family: 'Noto Sans SC', sans-serif; background-color: #065f46; color: white; overflow: hidden; margin: 0; }
         .table-area { height: 100vh; position: relative; width: 100vw; overflow: hidden; }
 
         .poker-card {
             width: var(--card-w);
             height: var(--card-h);
-            border-radius: 8px;
+            border-radius: 10px;
             background: white;
             color: black;
             display: flex;
             font-weight: bold;
-            border: 1px solid #e5e5e5;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.8);
+            border: 2px solid #e5e5e5;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.8);
             user-select: none;
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
             cursor: pointer;
             position: relative;
             overflow: hidden;
             flex-shrink: 0;
-        }
-
-        @media (min-width: 641px) {
-            .poker-card { border-radius: 10px; border-width: 2px; box-shadow: 0 4px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.8); }
         }
 
         .poker-card::before {
@@ -60,38 +46,6 @@
         .poker-card.selected {
             border-color: #fbbf24;
             box-shadow: 0 8px 16px rgba(251,191,36,0.4), 0 0 0 2px rgba(251,191,36,0.3);
-        }
-
-        /* Mobile haptic-like feedback for card selection */
-        @media (max-width: 640px) {
-            .poker-card {
-                transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
-                            box-shadow 0.15s ease,
-                            border-color 0.15s ease;
-            }
-
-            .poker-card:active {
-                transform: scale(0.92);
-                box-shadow: 0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.8);
-            }
-
-            .player-hand .poker-card.selected {
-                transform: translateY(-20px) scale(1.05);
-                box-shadow: 0 12px 24px rgba(251,191,36,0.5), 0 0 0 3px rgba(251,191,36,0.4);
-            }
-
-            .player-hand .poker-card.selected:active {
-                transform: translateY(-20px) scale(0.98);
-            }
-
-            /* Two-row layout adjustments for mobile */
-            .player-hand.two-rows .poker-card.selected {
-                transform: translateY(-15px) scale(1.05);
-            }
-
-            .player-hand.two-rows .poker-card.selected:active {
-                transform: translateY(-15px) scale(0.98);
-            }
         }
         .poker-card.wild {
             border-color: #8b5cf6;
@@ -129,14 +83,14 @@
         /* Player hand container */
         .player-hand {
             position: absolute;
-            bottom: 10px;
+            bottom: 0px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             z-index: 10;
             height: auto;
             min-height: calc(var(--card-h) + 20px);
-            padding: 10px 20px 30px;
+            padding: 0;
             width: 100%;
             justify-content: center;
         }
@@ -151,20 +105,18 @@
 
         /* Selected cards pop up */
         .player-hand .poker-card.selected {
-            transform: translateY(-20px);
+            transform: translateY(-15px);
             z-index: 50;
         }
 
-        /* Hover effect - disable or minimize on mobile */
-        @media (min-width: 1024px) {
-            .player-hand .poker-card:hover {
-                transform: translateY(-45px) scale(1.08);
-                z-index: 100 !important;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            }
-            .player-hand .poker-card.selected:hover {
-                transform: translateY(-50px) scale(1.08);
-            }
+        /* Hover effect */
+        .player-hand .poker-card:hover {
+            transform: translateY(-45px) scale(1.08);
+            z-index: 100 !important;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .player-hand .poker-card.selected:hover {
+            transform: translateY(-50px) scale(1.08);
         }
 
         /* Two-row layout */
@@ -187,27 +139,18 @@
 
         .ai-player {
             position: absolute;
-            padding: 8px 12px;
+            padding: 15px;
             background: rgba(0,0,0,0.4);
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 16px;
+            border: 2px solid rgba(255,255,255,0.2);
             text-align: center;
-            min-width: 80px;
+            min-width: 100px;
             z-index: 5;
         }
 
-        @media (max-width: 640px) {
-            .ai-top { top: 10px; left: 50%; transform: translateX(-50%); }
-            .ai-left { left: 10px; top: 30%; transform: translateY(-50%); scale: 0.9; }
-            .ai-right { right: 10px; top: 30%; transform: translateY(-50%); scale: 0.9; }
-        }
-
-        @media (min-width: 641px) {
-            .ai-player { padding: 15px; border-radius: 16px; border-width: 2px; min-width: 100px; }
-            .ai-top { top: 20px; left: 50%; transform: translateX(-50%); }
-            .ai-left { left: 20px; top: 40%; transform: translateY(-50%); }
-            .ai-right { right: 20px; top: 40%; transform: translateY(-50%); }
-        }
+        .ai-top { top: 5px; left: 50%; transform: translateX(-50%); scale: 0.8; }
+        .ai-left { left: 10px; top: 25%; transform: translateY(-50%); scale: 0.8; }
+        .ai-right { right: 10px; top: 25%; transform: translateY(-50%); scale: 0.8; }
 
         .ai-hand-count {
             background: #fbbf24;
@@ -230,49 +173,43 @@
             justify-content: center;
             z-index: 2;
         }
-        @media (max-width: 640px) {
-            .ai-top-play { top: 80px; left: 50%; transform: translateX(-50%); scale: 0.8; }
-            .ai-left-play { left: 10px; top: 45%; transform: translateY(-50%); scale: 0.7; transform-origin: left; }
-            .ai-right-play { right: 10px; top: 45%; transform: translateY(-50%); scale: 0.7; transform-origin: right; }
-        }
-        @media (min-width: 641px) {
-            .ai-top-play { top: 120px; left: 50%; transform: translateX(-50%); }
-            .ai-left-play { left: 140px; top: 50%; transform: translateY(-50%); }
-            .ai-right-play { right: 140px; top: 50%; transform: translateY(-50%); }
-        }
+
+        .ai-top-play { top: 60px; left: 50%; transform: translateX(-50%) scale(0.7); }
+        .ai-left-play { left: 10px; top: 45%; transform: translateY(-50%); scale: 0.7; transform-origin: left; }
+        .ai-right-play { right: 10px; top: 45%; transform: translateY(-50%); scale: 0.7; transform-origin: right; }
 
         .battle-log {
             position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 90px;
+            height: 50px;
+            font-size: 0.6rem;
+            opacity: 0.5;
             background: rgba(0,0,0,0.6);
             border-radius: 12px;
             padding: 10px;
-            font-size: 0.75rem;
             overflow-x: auto;
             overflow-y: auto;
             border: 1px solid rgba(255,255,255,0.1);
             z-index: 20;
+            pointer-events: none;
         }
         .battle-log p {
             white-space: nowrap;
         }
 
-        @media (max-width: 640px) {
-            .battle-log { top: 10px; left: 10px; width: 120px; height: 100px; font-size: 0.7rem; opacity: 0.8; pointer-events: none; }
-        }
-        @media (min-width: 641px) {
-            .battle-log { top: 20px; left: 20px; width: 280px; height: 200px; font-size: 0.85rem; }
-        }
-
         .center-board {
             position: absolute;
-            top: 50%;
+            top: 42%;
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
             background: rgba(0,0,0,0.3);
-            padding: 10px 20px;
+            padding: 5px 10px;
             border-radius: 16px;
-            width: 90%;
+            scale: 0.85;
+            width: 80%;
             max-width: 400px;
             z-index: 15;
         }
@@ -287,90 +224,39 @@
             display: flex;
             gap: 2px;
             justify-content: center;
-            min-height: 80px;
+            min-height: 70px;
             align-items: center;
         }
 
         .btn-action {
-            padding: 8px 20px;
+            padding: 6px 15px;
             border-radius: 99px;
             font-weight: bold;
             transition: all 0.2s;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
-        @media (min-width: 641px) {
-            .btn-action { padding: 12px 32px; font-size: 1rem; }
-            .center-board { padding: 20px 40px; min-width: 300px; }
-            .last-play-info { font-size: 0.9rem; }
-            #played-cards { min-height: 100px; gap: 6px; }
-        }
-
-        /* Mobile button centering optimizations */
-        @media (max-width: 640px) {
-            #controls {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 8px;
-                width: 100%;
-                padding: 0 16px;
-                margin-top: 12px;
-            }
-
-            .btn-action {
-                flex: 0 1 auto;
-                min-width: 72px;
-                max-width: 100px;
-                padding: 10px 16px;
-                font-size: 0.9rem;
-                text-align: center;
-                white-space: nowrap;
-            }
-        }
-
-        @media (max-width: 400px) {
-            #controls {
-                gap: 6px;
-                padding: 0 12px;
-            }
-
-            .btn-action {
-                min-width: 64px;
-                max-width: 90px;
-                padding: 9px 12px;
-                font-size: 0.85rem;
-            }
-        }
-
-        @media (max-width: 350px) {
-            #controls {
-                gap: 4px;
-                padding: 0 8px;
-            }
-
-            .btn-action {
-                min-width: 58px;
-                max-width: 80px;
-                padding: 8px 10px;
-                font-size: 0.8rem;
-            }
+        #controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 0 16px;
+            margin-top: 12px;
         }
 
         .game-info {
             position: absolute;
+            top: 5px;
+            right: 5px;
+            scale: 0.65;
+            transform-origin: right top;
             background: rgba(0,0,0,0.5);
             padding: 8px 12px;
             border-radius: 12px;
             text-align: right;
             z-index: 20;
-        }
-
-        @media (max-width: 640px) {
-            .game-info { top: 10px; right: 10px; scale: 0.8; transform-origin: right top; }
-        }
-        @media (min-width: 641px) {
-            .game-info { top: 20px; right: 20px; padding: 12px 20px; }
         }
 
         .level-indicator {
@@ -392,97 +278,6 @@
             animation: pulse 1s infinite;
         }
 
-        /* Portrait notice is never auto-shown; mobile auto-applies force-landscape */
-
-        .portrait-notice {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #065f46;
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .rotate-icon {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 20px;
-            animation: rotate-device 2s infinite;
-            color: #fbbf24;
-        }
-
-        @keyframes rotate-device {
-            0% { transform: rotate(0deg); }
-            50% { transform: rotate(-90deg); }
-            100% { transform: rotate(0deg); }
-        }
-
-        /* Landscape specific optimizations for small height screens */
-        @media (max-height: 500px) {
-            .ai-top { top: 5px; scale: 0.8; }
-            .ai-top-play { top: 60px; transform: translateX(-50%) scale(0.7); }
-            .ai-left { left: 10px; top: 25%; scale: 0.8; }
-            .ai-right { right: 10px; top: 25%; scale: 0.8; }
-            .center-board { top: 42%; padding: 5px 10px; scale: 0.85; width: 80%; }
-            #played-cards { min-height: 70px; }
-            .player-hand { bottom: 0px; padding: 0; }
-            .game-info { top: 5px; right: 5px; scale: 0.65; }
-            .battle-log { top: 5px; left: 5px; height: 50px; width: 90px; font-size: 0.6rem; opacity: 0.5; }
-            .btn-back { top: 5px; right: 5px; scale: 0.8; bottom: auto; left: auto; }
-            .btn-action { padding: 6px 15px; font-size: 0.8rem; }
-        }
-
-        /* Force landscape mode — mirrors all landscape optimizations regardless of physical orientation */
-        .force-landscape .ai-top { top: 5px; scale: 0.8; }
-        .force-landscape .ai-top-play { top: 60px; transform: translateX(-50%) scale(0.7); }
-        .force-landscape .ai-left { left: 10px; top: 25%; scale: 0.8; }
-        .force-landscape .ai-right { right: 10px; top: 25%; scale: 0.8; }
-        .force-landscape .center-board { top: 42%; padding: 5px 10px; scale: 0.85; width: 80%; }
-        .force-landscape #played-cards { min-height: 70px; }
-        .force-landscape .player-hand { bottom: 0px; padding: 0; }
-        .force-landscape .game-info { top: 5px; right: 5px; scale: 0.65; }
-        .force-landscape .battle-log { top: 5px; left: 5px; height: 50px; width: 90px; font-size: 0.6rem; opacity: 0.5; }
-        .force-landscape .btn-back { top: 5px; right: 5px; scale: 0.8; bottom: auto; left: auto; }
-        .force-landscape .btn-action { padding: 6px 15px; font-size: 0.8rem; }
-
-        /* Landscape toggle button */
-        .btn-landscape-toggle {
-            position: absolute;
-            z-index: 30;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.7rem;
-            padding: 4px 8px;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.25);
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
-            top: auto;
-            bottom: 20px;
-            left: 110px; /* right of the 退出练习 btn */
-        }
-        .btn-landscape-toggle:hover { background: rgba(255,255,255,0.22); }
-        .btn-landscape-toggle.active {
-            background: rgba(251,191,36,0.25);
-            border-color: rgba(251,191,36,0.6);
-            color: #fbbf24;
-        }
-        @media (min-width: 641px) {
-            .btn-landscape-toggle {
-                top: 20px;
-                bottom: auto;
-                right: 140px;
-                left: auto;
-            }
-        }
         .turn-top { top: -6px; left: 50%; transform: translateX(-50%); }
         .turn-left { left: -6px; top: 50%; transform: translateY(-50%); }
         .turn-right { right: -6px; top: 50%; transform: translateY(-50%); }
@@ -503,49 +298,25 @@
             z-index: 100;
         }
         .winner-modal.active { display: flex; }
+
         /* Back Nav */
         .btn-back {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 5px;
+            right: 5px;
+            scale: 0.8;
+            bottom: auto;
+            left: auto;
             z-index: 30;
-        }
-        @media (max-width: 640px) {
-            .btn-back { top: 10px; right: 10px; left: auto; bottom: auto; font-size: 0.75rem; padding: 4px 10px; }
+            font-size: 0.75rem;
+            padding: 4px 10px;
         }
     </style>
 </head>
 <body>
-    <div class="portrait-notice" id="portrait-notice">
-        <svg class="rotate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-        </svg>
-        <h2 class="text-xl font-bold mb-2">请横屏进行游戏</h2>
-        <p class="text-emerald-200">为了获得最佳的掼蛋对弈体验，请旋转您的手机。</p>
-        <div class="mt-6 flex flex-col items-center gap-3">
-            <button onclick="enableForceLandscape()" class="px-6 py-3 bg-yellow-400 hover:bg-yellow-300 text-emerald-900 font-bold rounded-lg text-sm flex items-center gap-2 shadow-lg">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;">
-                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
-                </svg>
-                强制横屏模式
-            </button>
-
-        </div>
-    </div>
-
     <div class="table-area">
         <!-- Back Nav -->
         <a href="index.html" class="btn-back px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">退出练习</a>
-
-        <!-- Landscape Toggle -->
-        <button id="btn-landscape-toggle" class="btn-landscape-toggle" onclick="toggleForceLandscape()" title="强制横屏模式">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;flex-shrink:0;">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
-            </svg>
-            <span id="landscape-toggle-label">横屏</span>
-        </button>
 
         <!-- Game Info -->
         <div class="game-info">
@@ -977,8 +748,7 @@
         }
 
         function calculateCardLayout(cardCount) {
-            const isMobile = window.innerWidth <= 640;
-            const cardWidth = isMobile ? 58 : 80;
+            const cardWidth = 80;
             const maxVisibleWidth = window.innerWidth * 0.95;
 
             // Overlap settings
@@ -1051,10 +821,6 @@
 
                 // Set z-index based on position
                 el.style.zIndex = index + 1;
-
-                // Fix for wrapped rows: if it's the start of a new row in two-row mode,
-                // the negative margin-left might cause issues.
-                // But with justify-content: center, it usually looks okay.
 
                 if (card.isJoker) {
                     el.innerHTML = `
@@ -1195,10 +961,9 @@
                 targetContainer = document.getElementById('play-right');
             }
 
-            const isMobile = window.innerWidth <= 640;
-            const cardW = isMobile ? 45 : 65;
-            const cardH = isMobile ? 63 : 90;
-            const offset = isMobile ? -18 : -25;
+            const cardW = 65;
+            const cardH = 90;
+            const offset = -25;
 
             cards.forEach((card, idx) => {
                 const el = document.createElement('div');
@@ -1209,11 +974,6 @@
                 el.style.marginLeft = idx > 0 ? offset + 'px' : '0';
                 el.style.flexShrink = '0';
                 el.style.zIndex = idx + 1;
-
-                // Scale corner for small cards
-                if (isMobile) {
-                    el.style.fontSize = '0.7rem';
-                }
 
                 if (card.isJoker) {
                     el.innerHTML = `
@@ -1383,56 +1143,6 @@
             log.appendChild(p);
             log.scrollTop = log.scrollHeight;
         }
-
-        // ==================== Force Landscape Mode ====================
-        const FORCE_LANDSCAPE_KEY = 'guandan_force_landscape';
-
-        function enableForceLandscape() {
-            document.body.classList.add('force-landscape');
-            document.getElementById('portrait-notice').style.display = 'none';
-            localStorage.setItem(FORCE_LANDSCAPE_KEY, '1');
-            updateLandscapeToggleUI(true);
-        }
-
-        function disableForceLandscape() {
-            document.body.classList.remove('force-landscape');
-            localStorage.removeItem(FORCE_LANDSCAPE_KEY);
-            updateLandscapeToggleUI(false);
-        }
-
-        function toggleForceLandscape() {
-            if (document.body.classList.contains('force-landscape')) {
-                disableForceLandscape();
-            } else {
-                enableForceLandscape();
-            }
-        }
-
-        function updateLandscapeToggleUI(active) {
-            const btn = document.getElementById('btn-landscape-toggle');
-            const label = document.getElementById('landscape-toggle-label');
-            if (active) {
-                btn.classList.add('active');
-                label.textContent = '横屏 ✓';
-            } else {
-                btn.classList.remove('active');
-                label.textContent = '横屏';
-            }
-        }
-
-        // On mobile, always force landscape and auto-dismiss the portrait notice
-        (function restoreLandscapePreference() {
-            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 640;
-            if (isMobile) {
-                // Always force landscape on mobile; never show the portrait option
-                enableForceLandscape();
-                const notice = document.getElementById('portrait-notice');
-                notice.style.display = 'none';
-            } else if (localStorage.getItem(FORCE_LANDSCAPE_KEY) === '1') {
-                document.body.classList.add('force-landscape');
-                updateLandscapeToggleUI(true);
-            }
-        })();
 
         // Initialize game on load
         initGame();
