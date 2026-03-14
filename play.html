@@ -136,7 +136,7 @@
             z-index: 10;
             height: auto;
             min-height: calc(var(--card-h) + 20px);
-            padding: 10px 20px;
+            padding: 10px 20px 30px;
             width: 100%;
             justify-content: center;
         }
@@ -247,9 +247,13 @@
             border-radius: 12px;
             padding: 10px;
             font-size: 0.75rem;
+            overflow-x: auto;
             overflow-y: auto;
             border: 1px solid rgba(255,255,255,0.1);
             z-index: 20;
+        }
+        .battle-log p {
+            white-space: nowrap;
         }
 
         @media (max-width: 640px) {
@@ -270,6 +274,7 @@
             border-radius: 16px;
             width: 90%;
             max-width: 400px;
+            z-index: 15;
         }
 
         .last-play-info {
@@ -387,11 +392,7 @@
             animation: pulse 1s infinite;
         }
 
-        @media (max-width: 640px) and (orientation: portrait) {
-            .portrait-notice {
-                display: flex !important;
-            }
-        }
+        /* Portrait notice is never auto-shown; mobile auto-applies force-landscape */
 
         .portrait-notice {
             position: fixed;
@@ -431,7 +432,7 @@
             .player-hand { bottom: 0px; padding: 0; }
             .game-info { top: 5px; right: 5px; scale: 0.65; }
             .battle-log { top: 5px; left: 5px; height: 50px; width: 90px; font-size: 0.6rem; opacity: 0.5; }
-            .btn-back { bottom: 10px; left: 10px; scale: 0.8; top: auto; right: auto; }
+            .btn-back { top: 5px; right: 5px; scale: 0.8; bottom: auto; left: auto; }
             .btn-action { padding: 6px 15px; font-size: 0.8rem; }
         }
 
@@ -445,7 +446,7 @@
         .force-landscape .player-hand { bottom: 0px; padding: 0; }
         .force-landscape .game-info { top: 5px; right: 5px; scale: 0.65; }
         .force-landscape .battle-log { top: 5px; left: 5px; height: 50px; width: 90px; font-size: 0.6rem; opacity: 0.5; }
-        .force-landscape .btn-back { bottom: 10px; left: 10px; scale: 0.8; top: auto; right: auto; }
+        .force-landscape .btn-back { top: 5px; right: 5px; scale: 0.8; bottom: auto; left: auto; }
         .force-landscape .btn-action { padding: 6px 15px; font-size: 0.8rem; }
 
         /* Landscape toggle button */
@@ -510,7 +511,7 @@
             z-index: 30;
         }
         @media (max-width: 640px) {
-            .btn-back { top: auto; bottom: 20px; left: 20px; right: auto; font-size: 0.75rem; padding: 4px 10px; }
+            .btn-back { top: 10px; right: 10px; left: auto; bottom: auto; font-size: 0.75rem; padding: 4px 10px; }
         }
     </style>
 </head>
@@ -529,7 +530,7 @@
                 </svg>
                 强制横屏模式
             </button>
-            <button onclick="document.getElementById('portrait-notice').style.display='none'" class="px-4 py-2 border border-white/30 rounded-lg text-sm text-emerald-200 hover:bg-white/10">继续竖屏使用</button>
+
         </div>
     </div>
 
@@ -563,20 +564,20 @@
         </div>
 
         <!-- AI Players -->
-        <div class="ai-player ai-top" id="ai-top">
+        <div class="ai-player ai-top" id="ai-top" style="border-color: rgba(52,211,153,0.5); background: rgba(6,78,59,0.55);">
             <div class="turn-indicator turn-top" id="turn-top" style="display:none;"></div>
-            <div class="ai-hand-count" id="count-top">27</div>
-            <div class="text-sm">对家</div>
+            <div class="ai-hand-count" style="background:#34d399;color:#064e3b;" id="count-top">27</div>
+            <div class="text-sm text-emerald-300">对家</div>
         </div>
-        <div class="ai-player ai-left" id="ai-left">
-            <div class="turn-indicator turn-left" id="turn-left" style="display:none;"></div>
-            <div class="ai-hand-count" id="count-left">27</div>
-            <div class="text-sm">对手A</div>
+        <div class="ai-player ai-left" id="ai-left" style="border-color: rgba(248,113,113,0.5); background: rgba(127,29,29,0.55);">
+            <div class="turn-indicator turn-left" id="turn-left" style="display:none; background:#f87171;"></div>
+            <div class="ai-hand-count" style="background:#f87171;color:#7f1d1d;" id="count-left">27</div>
+            <div class="text-sm text-red-300">对手A</div>
         </div>
-        <div class="ai-player ai-right" id="ai-right">
-            <div class="turn-indicator turn-right" id="turn-right" style="display:none;"></div>
-            <div class="ai-hand-count" id="count-right">27</div>
-            <div class="text-sm">对手B</div>
+        <div class="ai-player ai-right" id="ai-right" style="border-color: rgba(248,113,113,0.5); background: rgba(127,29,29,0.55);">
+            <div class="turn-indicator turn-right" id="turn-right" style="display:none; background:#f87171;"></div>
+            <div class="ai-hand-count" style="background:#f87171;color:#7f1d1d;" id="count-right">27</div>
+            <div class="text-sm text-red-300">对手B</div>
         </div>
 
         <!-- AI Play Areas -->
@@ -1147,6 +1148,11 @@
                 players[player].splice(idx, 1);
             }
 
+            // Clear player selection after playing
+            if (player === 0) {
+                selectedIndices.clear();
+            }
+
             // Update last play
             lastPlay = { player, cards: [...cards], pattern };
             passCount = 0;
@@ -1414,9 +1420,15 @@
             }
         }
 
-        // Restore persisted preference on load
+        // On mobile, always force landscape and auto-dismiss the portrait notice
         (function restoreLandscapePreference() {
-            if (localStorage.getItem(FORCE_LANDSCAPE_KEY) === '1') {
+            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 640;
+            if (isMobile) {
+                // Always force landscape on mobile; never show the portrait option
+                enableForceLandscape();
+                const notice = document.getElementById('portrait-notice');
+                notice.style.display = 'none';
+            } else if (localStorage.getItem(FORCE_LANDSCAPE_KEY) === '1') {
                 document.body.classList.add('force-landscape');
                 updateLandscapeToggleUI(true);
             }
