@@ -18,18 +18,15 @@
         body { font-family: 'Noto Sans SC', sans-serif; background-color: #065f46; color: white; overflow: hidden; margin: 0; }
         .table-area { height: 100vh; position: relative; width: 100vw; overflow: hidden; }
 
-        /* ── Portrait mode: rotate the entire game board into landscape ── */
-        @media (orientation: portrait) {
-            .table-area {
-                width: 100vh;
-                height: 100vw;
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%) rotate(90deg);
-                transform-origin: center;
-                overflow: hidden;
-            }
+        /* game-stage: default landscape state */
+        #game-stage {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform-origin: top left;
+            overflow: hidden;
         }
 
         .poker-card {
@@ -329,6 +326,7 @@
 </head>
 <body>
     <div class="table-area">
+        <div id="game-stage">
         <!-- Back Nav -->
         <a href="index.html" class="btn-back px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">退出练习</a>
 
@@ -387,6 +385,7 @@
         <div id="hand" class="player-hand">
             <div class="turn-indicator turn-bottom" id="turn-bottom" style="display:none;"></div>
         </div>
+        </div><!-- /#game-stage -->
     </div>
 
     <!-- Winner Modal -->
@@ -761,9 +760,14 @@
             return names[pattern.type] || pattern.type;
         }
 
+        function getStageWidth() {
+            // Always use the longer dimension as the "landscape width"
+            return Math.max(window.innerWidth, window.innerHeight);
+        }
+
         function calculateCardLayout(cardCount) {
             const cardWidth = 80;
-            const maxVisibleWidth = window.innerWidth * 0.95;
+            const maxVisibleWidth = getStageWidth() * 0.95;
 
             // Overlap settings
             const minOffset = -Math.floor(cardWidth * 0.7); // Leave 30% visible
@@ -861,16 +865,46 @@
             });
         }
 
-        // Recalculate layout on window resize
-        let resizeTimeout;
+        // ==================== Orientation & Resize Handling ====================
+        function applyOrientation() {
+            const stage = document.getElementById('game-stage');
+            const W = window.innerWidth;
+            const H = window.innerHeight;
+
+            if (H > W) {
+                // Portrait: rotate stage 90deg so landscape content fills screen
+                stage.style.width = H + 'px';
+                stage.style.height = W + 'px';
+                stage.style.position = 'fixed';
+                stage.style.top = '0';
+                stage.style.left = '0';
+                stage.style.transformOrigin = 'top left';
+                stage.style.transform = `translate(${W}px, 0) rotate(90deg)`;
+            } else {
+                // Landscape: normal full-screen layout
+                stage.style.width = '100vw';
+                stage.style.height = '100vh';
+                stage.style.position = 'fixed';
+                stage.style.top = '0';
+                stage.style.left = '0';
+                stage.style.transformOrigin = 'top left';
+                stage.style.transform = 'none';
+            }
+
+            // Recalculate card layout after orientation change
+            if (players[0] && players[0].length > 0) {
+                renderHand();
+            }
+        }
+
+        // Apply on load and on any resize/orientation event
         window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                if (players[0].length > 0) {
-                    renderHand();
-                }
-            }, 100);
+            applyOrientation();
         });
+        if (window.screen && window.screen.orientation) {
+            window.screen.orientation.addEventListener('change', applyOrientation);
+        }
+        window.addEventListener('orientationchange', applyOrientation);
 
         function toggleSelect(index) {
             if (currentPlayer !== 0 || !gameActive) return;
@@ -1158,7 +1192,8 @@
             log.scrollTop = log.scrollHeight;
         }
 
-        // Initialize game on load
+        // Initialize orientation and game on load
+        applyOrientation();
         initGame();
     </script>
 </body>
