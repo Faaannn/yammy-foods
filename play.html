@@ -434,6 +434,54 @@
             .btn-back { bottom: 10px; left: 10px; scale: 0.8; top: auto; right: auto; }
             .btn-action { padding: 6px 15px; font-size: 0.8rem; }
         }
+
+        /* Force landscape mode — mirrors all landscape optimizations regardless of physical orientation */
+        .force-landscape .ai-top { top: 5px; scale: 0.8; }
+        .force-landscape .ai-top-play { top: 60px; transform: translateX(-50%) scale(0.7); }
+        .force-landscape .ai-left { left: 10px; top: 25%; scale: 0.8; }
+        .force-landscape .ai-right { right: 10px; top: 25%; scale: 0.8; }
+        .force-landscape .center-board { top: 42%; padding: 5px 10px; scale: 0.85; width: 80%; }
+        .force-landscape #played-cards { min-height: 70px; }
+        .force-landscape .player-hand { bottom: 0px; padding: 0; }
+        .force-landscape .game-info { top: 5px; right: 5px; scale: 0.65; }
+        .force-landscape .battle-log { top: 5px; left: 5px; height: 50px; width: 90px; font-size: 0.6rem; opacity: 0.5; }
+        .force-landscape .btn-back { bottom: 10px; left: 10px; scale: 0.8; top: auto; right: auto; }
+        .force-landscape .btn-action { padding: 6px 15px; font-size: 0.8rem; }
+
+        /* Landscape toggle button */
+        .btn-landscape-toggle {
+            position: absolute;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+            top: auto;
+            bottom: 20px;
+            left: 110px; /* right of the 退出练习 btn */
+        }
+        .btn-landscape-toggle:hover { background: rgba(255,255,255,0.22); }
+        .btn-landscape-toggle.active {
+            background: rgba(251,191,36,0.25);
+            border-color: rgba(251,191,36,0.6);
+            color: #fbbf24;
+        }
+        @media (min-width: 641px) {
+            .btn-landscape-toggle {
+                top: 20px;
+                bottom: auto;
+                right: 140px;
+                left: auto;
+            }
+        }
         .turn-top { top: -6px; left: 50%; transform: translateX(-50%); }
         .turn-left { left: -6px; top: 50%; transform: translateY(-50%); }
         .turn-right { right: -6px; top: 50%; transform: translateY(-50%); }
@@ -473,12 +521,30 @@
         </svg>
         <h2 class="text-xl font-bold mb-2">请横屏进行游戏</h2>
         <p class="text-emerald-200">为了获得最佳的掼蛋对弈体验，请旋转您的手机。</p>
-        <button onclick="document.getElementById('portrait-notice').style.display='none'" class="mt-6 px-4 py-2 border border-white/30 rounded-lg text-sm">继续竖屏使用</button>
+        <div class="mt-6 flex flex-col items-center gap-3">
+            <button onclick="enableForceLandscape()" class="px-6 py-3 bg-yellow-400 hover:bg-yellow-300 text-emerald-900 font-bold rounded-lg text-sm flex items-center gap-2 shadow-lg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
+                </svg>
+                强制横屏模式
+            </button>
+            <button onclick="document.getElementById('portrait-notice').style.display='none'" class="px-4 py-2 border border-white/30 rounded-lg text-sm text-emerald-200 hover:bg-white/10">继续竖屏使用</button>
+        </div>
     </div>
 
     <div class="table-area">
         <!-- Back Nav -->
         <a href="index.html" class="btn-back px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">退出练习</a>
+
+        <!-- Landscape Toggle -->
+        <button id="btn-landscape-toggle" class="btn-landscape-toggle" onclick="toggleForceLandscape()" title="强制横屏模式">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;flex-shrink:0;">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
+            </svg>
+            <span id="landscape-toggle-label">横屏</span>
+        </button>
 
         <!-- Game Info -->
         <div class="game-info">
@@ -1311,6 +1377,50 @@
             log.appendChild(p);
             log.scrollTop = log.scrollHeight;
         }
+
+        // ==================== Force Landscape Mode ====================
+        const FORCE_LANDSCAPE_KEY = 'guandan_force_landscape';
+
+        function enableForceLandscape() {
+            document.body.classList.add('force-landscape');
+            document.getElementById('portrait-notice').style.display = 'none';
+            localStorage.setItem(FORCE_LANDSCAPE_KEY, '1');
+            updateLandscapeToggleUI(true);
+        }
+
+        function disableForceLandscape() {
+            document.body.classList.remove('force-landscape');
+            localStorage.removeItem(FORCE_LANDSCAPE_KEY);
+            updateLandscapeToggleUI(false);
+        }
+
+        function toggleForceLandscape() {
+            if (document.body.classList.contains('force-landscape')) {
+                disableForceLandscape();
+            } else {
+                enableForceLandscape();
+            }
+        }
+
+        function updateLandscapeToggleUI(active) {
+            const btn = document.getElementById('btn-landscape-toggle');
+            const label = document.getElementById('landscape-toggle-label');
+            if (active) {
+                btn.classList.add('active');
+                label.textContent = '横屏 ✓';
+            } else {
+                btn.classList.remove('active');
+                label.textContent = '横屏';
+            }
+        }
+
+        // Restore persisted preference on load
+        (function restoreLandscapePreference() {
+            if (localStorage.getItem(FORCE_LANDSCAPE_KEY) === '1') {
+                document.body.classList.add('force-landscape');
+                updateLandscapeToggleUI(true);
+            }
+        })();
 
         // Initialize game on load
         initGame();
